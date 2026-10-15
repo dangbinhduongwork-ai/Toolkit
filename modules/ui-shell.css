@@ -1,0 +1,143 @@
+/**
+ * UI-Shell: Lớp giao diện kính mờ (Glassmorphism Overlay) cho Web Canvas / Three.js
+ * - Không cản trở tương tác canvas bên dưới (pointer-events: none trên container, pointer-events: auto trên nút).
+ * - Sử dụng 100lvh và env(safe-area-inset-*) chuẩn chỉnh cho màn hình di động (iOS Safari Dynamic Island / Home Indicator).
+ * - Hiệu ứng kính mờ frosted glass cao cấp (backdrop-filter: blur).
+ */
+
+:root {
+  --shell-bg: rgba(15, 23, 42, 0.45);
+  --shell-border: rgba(255, 255, 255, 0.15);
+  --shell-border-hover: rgba(255, 255, 255, 0.35);
+  --shell-text: #ffffff;
+  --shell-text-dim: rgba(255, 255, 255, 0.7);
+  --shell-blur: blur(16px);
+  --shell-radius: 9999px;
+  --shell-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+}
+
+/* Lớp vỏ bao bọc phủ kín màn hình */
+.vibe-shell {
+  position: fixed;
+  inset: 0;
+  width: 100vw;
+  height: 100lvh;
+  pointer-events: none;
+  z-index: 100;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+  box-sizing: border-box;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--shell-text);
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+/* Cho phép click vào các nút bên trong */
+.vibe-shell button,
+.vibe-shell a,
+.vibe-shell input {
+  pointer-events: auto;
+}
+
+/* Cột công cụ góc trên (Tool Rail) */
+.vibe-rail {
+  position: absolute;
+  top: max(16px, env(safe-area-inset-top));
+  right: max(16px, env(safe-area-inset-right));
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* Nút bấm kính mờ (Frosted Glass Button) */
+.vibe-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: var(--shell-radius);
+  background: var(--shell-bg);
+  border: 1px solid var(--shell-border);
+  backdrop-filter: var(--shell-blur);
+  -webkit-backdrop-filter: var(--shell-blur);
+  color: var(--shell-text);
+  box-shadow: var(--shell-shadow);
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  outline: none;
+}
+
+.vibe-btn:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: var(--shell-border-hover);
+  transform: scale(1.05);
+}
+
+.vibe-btn:active {
+  transform: scale(0.95);
+}
+
+.vibe-btn[aria-pressed="true"] {
+  background: rgba(255, 255, 255, 0.3);
+  border-color: rgba(255, 255, 255, 0.6);
+}
+
+/* Nút hình viên thuốc (Pill Button) */
+.vibe-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  height: 40px;
+  border-radius: var(--shell-radius);
+  background: var(--shell-bg);
+  border: 1px solid var(--shell-border);
+  backdrop-filter: var(--shell-blur);
+  -webkit-backdrop-filter: var(--shell-blur);
+  color: var(--shell-text);
+  font-size: 14px;
+  font-weight: 500;
+  box-shadow: var(--shell-shadow);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.vibe-pill:hover {
+  background: rgba(255, 255, 255, 0.18);
+  border-color: var(--shell-border-hover);
+}
+
+/* Khối tiêu đề & nội dung góc dưới hoặc giữa */
+.vibe-hero {
+  max-width: 480px;
+  margin-top: auto;
+  margin-bottom: 8px;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+}
+
+.vibe-hero h1 {
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 700;
+  margin: 0 0 6px 0;
+  line-height: 1.15;
+}
+
+.vibe-hero p {
+  font-size: clamp(13px, 2vw, 15px);
+  color: var(--shell-text-dim);
+  margin: 0;
+  line-height: 1.45;
+}
+
+/* Chế độ Zen Mode ẩn toàn bộ UI */
+body.vibe-zen .vibe-rail,
+body.vibe-zen .vibe-hero,
+body.vibe-zen .vibe-counter {
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}

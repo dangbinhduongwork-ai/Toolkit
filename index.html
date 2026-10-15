@@ -1,0 +1,524 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Vibe Coding Toolkit - Central Dashboard</title>
+  <link rel="stylesheet" href="modules/ui-shell.css">
+  <style>
+    :root {
+      --bg: #090d16;
+      --card-bg: rgba(18, 24, 38, 0.75);
+      --border: rgba(255, 255, 255, 0.1);
+      --accent: #38bdf8;
+      --accent-hover: #0284c7;
+      --text: #f8fafc;
+      --text-dim: #94a3b8;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      background: radial-gradient(circle at 50% 0%, #1e293b 0%, #090d16 80%);
+      color: var(--text);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .container {
+      max-width: 1050px;
+      margin: 0 auto;
+      padding: 40px 20px 140px 20px;
+      position: relative;
+      z-index: 10;
+    }
+
+    header {
+      text-align: center;
+      margin-bottom: 36px;
+    }
+
+    .badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 9999px;
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: var(--accent);
+      font-size: 0.8rem;
+      font-weight: 600;
+      margin-bottom: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    h1 {
+      font-size: clamp(2rem, 5vw, 3rem);
+      margin: 0 0 12px 0;
+      background: linear-gradient(to right, #38bdf8, #818cf8, #c084fc);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      letter-spacing: -0.02em;
+    }
+
+    p.subtitle {
+      font-size: 1.1rem;
+      color: var(--text-dim);
+      margin: 0 auto;
+      max-width: 600px;
+      line-height: 1.5;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+    }
+
+    .tab-btn {
+      padding: 10px 20px;
+      border-radius: 9999px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      color: var(--text-dim);
+      font-size: 0.95rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      backdrop-filter: blur(12px);
+    }
+
+    .tab-btn:hover {
+      border-color: rgba(255, 255, 255, 0.25);
+      color: var(--text);
+    }
+
+    .tab-btn.active {
+      background: rgba(56, 189, 248, 0.18);
+      border-color: var(--accent);
+      color: #fff;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.25);
+    }
+
+    /* Tab Panels */
+    .panel {
+      display: none;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .panel.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(6px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* Cards */
+    .card {
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      backdrop-filter: blur(16px);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    h3 {
+      margin-top: 0;
+      font-size: 1.3rem;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    /* Sandbox Canvas */
+    .canvas-preview {
+      width: 100%;
+      height: 320px;
+      background: #020617;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      position: relative;
+      overflow: hidden;
+      cursor: crosshair;
+    }
+
+    .preview-hint {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      background: rgba(0, 0, 0, 0.6);
+      padding: 6px 14px;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      color: #38bdf8;
+      pointer-events: none;
+      border: 1px solid rgba(56, 189, 248, 0.3);
+    }
+
+    /* Soundboard Buttons */
+    .sound-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 14px;
+      margin-top: 16px;
+    }
+
+    .sound-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      color: #fff;
+      cursor: pointer;
+      text-align: center;
+      font-weight: 500;
+      transition: all 0.2s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sound-btn:hover {
+      background: rgba(56, 189, 248, 0.15);
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+
+    .sound-btn:active {
+      transform: scale(0.96);
+    }
+
+    .sound-btn span {
+      font-size: 0.8rem;
+      color: var(--text-dim);
+    }
+
+    /* Code Blocks */
+    pre {
+      background: #060911;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 16px;
+      overflow-x: auto;
+      font-size: 0.9rem;
+      color: #e2e8f0;
+      line-height: 1.5;
+    }
+
+    code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
+
+    .copy-btn {
+      float: right;
+      padding: 4px 10px;
+      font-size: 0.75rem;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.1);
+      border: 1px solid var(--border);
+      color: #cbd5e1;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .copy-btn:hover {
+      background: var(--accent);
+      color: #000;
+    }
+
+    .cli-box {
+      background: #060911;
+      border: 1px solid #1e293b;
+      padding: 14px 18px;
+      border-radius: 10px;
+      font-family: monospace;
+      color: #4ade80;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin: 10px 0;
+    }
+  </style>
+
+  <!-- Three.js Import Map -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+
+  <div class="container">
+    <header>
+      <div class="badge">Vibe Coding Hub</div>
+      <h1>Interactive Web Toolkit</h1>
+      <p class="subtitle">Trực quan hóa, thử nghiệm và nhúng nhanh các hiệu ứng 3D, âm thanh ASMR, sóng nước vật lý vào website của bạn.</p>
+    </header>
+
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="character">🚶 3D Mascot Walk</button>
+      <button class="tab-btn" data-tab="ripple">🌊 Water Ripple</button>
+      <button class="tab-btn" data-tab="audio">🎧 Web Audio ASMR</button>
+      <button class="tab-btn" data-tab="cli">⚡ Auto Installer CLI</button>
+    </div>
+
+    <!-- PANEL 1: CHARACTER -->
+    <div class="panel active" id="tab-character">
+      <div class="card">
+        <h3>🚶 Nhân vật 3D đi lại dưới đáy màn hình (Mascot)</h3>
+        <p style="color: var(--text-dim); margin-bottom: 18px;">
+          Nhân vật tự động đi qua đi lại ở chân website. Bạn có thể <b>dùng chuột hoặc ngón tay kéo chú lên cao rồi thả ra</b> để xem chú rơi tự do và nảy nhẹ chạm đất!
+        </p>
+
+        <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap;">
+          <a href="demo-character.html" class="tab-btn active" style="text-decoration: none; display: inline-flex; align-items: center; gap: 6px;">
+            🎮 Mở Trang Demo & Chỉnh Sliders Tốc Độ/Kích Thước
+          </a>
+        </div>
+
+        <div class="cli-box">
+          <span>> node installer.mjs character &lt;đường_dẫn_dự_án&gt;</span>
+        </div>
+
+        <h4 style="margin: 20px 0 8px 0; color: #fff;">Code nhúng vào React / Next.js:</h4>
+        <pre><button class="copy-btn" onclick="navigator.clipboard.writeText(this.nextElementSibling.innerText); this.textContent='Đã chép!'; setTimeout(()=>this.textContent='Chép', 1500)">Chép</button><code>import { WalkingCharacter } from './components/ui/WalkingCharacter';
+
+export default function App() {
+  return (
+    &lt;div&gt;
+      {/* Nhân vật 3D đi lại chân màn hình */}
+      &lt;WalkingCharacter 
+        modelUrl="/models/chibi_bald_business_man_walk.glb"
+        scale={125}  // Chiều cao pixel
+        speed={85}   // Tốc độ di chuyển
+      /&gt;
+    &lt;/div&gt;
+  );
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- PANEL 2: RIPPLE -->
+    <div class="panel" id="tab-ripple">
+      <div class="card">
+        <h3>🌊 Mô phỏng Sóng nước Vật lý (2.5D Wave Grid)</h3>
+        <p style="color: var(--text-dim);">
+          Sử dụng toán tử vi phân Laplace 9 điểm giúp sóng nước tròn đều, chân thực và có dải tiêu biến biên không bị dội sóng. <b>Hãy bấm hoặc rê chuột vào khung dưới đây:</b>
+        </p>
+
+        <div class="canvas-preview" id="ripple-box">
+          <div class="preview-hint">👆 Chạm hoặc khuấy chuột vào đây để tạo sóng</div>
+          <canvas id="ripple-canvas" style="width: 100%; height: 100%;"></canvas>
+        </div>
+
+        <div class="cli-box" style="margin-top: 18px;">
+          <span>> node installer.mjs ripple &lt;đường_dẫn_dự_án&gt;</span>
+        </div>
+
+        <h4 style="margin: 20px 0 8px 0; color: #fff;">Code nhúng vào React (chỉ 2 dòng):</h4>
+        <pre><button class="copy-btn" onclick="navigator.clipboard.writeText(this.nextElementSibling.innerText); this.textContent='Đã chép!'; setTimeout(()=>this.textContent='Chép', 1500)">Chép</button><code>import { useRef } from 'react';
+import { useWaterRipple } from './hooks/useWaterRipple';
+
+export function WaterBackground() {
+  const canvasRef = useRef(null);
+  useWaterRipple(canvasRef); // Tự động gắn bộ mô phỏng sóng nước
+
+  return &lt;canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-10" /&gt;;
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- PANEL 3: AUDIO -->
+    <div class="panel" id="tab-audio">
+      <div class="card">
+        <h3>🎧 Web Audio API - Vi tương tác âm thanh & ASMR</h3>
+        <p style="color: var(--text-dim);">
+          Âm thanh phát tức thì không độ trễ. Tự động ngẫu nhiên hóa cao độ nhẹ (pitch variance) mỗi lần bấm để tiếng không bị cơ học nhàm chán. Giải quyết 100% lỗi chặn Autoplay trên iOS Safari.
+        </p>
+
+        <div class="sound-grid">
+          <button class="sound-btn" id="snd-pop">
+            💥 Tiếng Nổ Bong Bóng
+            <span>Bấm liên tục để nghe biến đổi cao độ</span>
+          </button>
+          <button class="sound-btn" id="snd-touch">
+            💧 Tiếng Giọt Nước Chạm
+            <span>ASMR giọt nước êm tai</span>
+          </button>
+          <button class="sound-btn" id="snd-quack">
+            🦆 Tiếng Vịt Kêu
+            <span>Quạc ngắn vui nhộn</span>
+          </button>
+          <button class="sound-btn" id="snd-music">
+            🎵 Nhạc Nền Ambient
+            <span id="music-status">Bấm để bật / tắt lặp vô tận</span>
+          </button>
+        </div>
+
+        <div class="cli-box" style="margin-top: 20px;">
+          <span>> node installer.mjs audio &lt;đường_dẫn_dự_án&gt;</span>
+        </div>
+
+        <h4 style="margin: 20px 0 8px 0; color: #fff;">Code nhúng vào React:</h4>
+        <pre><button class="copy-btn" onclick="navigator.clipboard.writeText(this.nextElementSibling.innerText); this.textContent='Đã chép!'; setTimeout(()=>this.textContent='Chép', 1500)">Chép</button><code>import { useAudio } from './hooks/useAudio';
+
+export function MyButton() {
+  const { play } = useAudio({ pop: '/audio/pop.mp3' });
+
+  return (
+    &lt;button onClick={() => play('pop', { pitchVariance: 0.1 })}&gt;
+      Bấm nút nghe tiếng ASMR
+    &lt;/button&gt;
+  );
+}</code></pre>
+      </div>
+    </div>
+
+    <!-- PANEL 4: CLI -->
+    <div class="panel" id="tab-cli">
+      <div class="card">
+        <h3>⚡ Script tự động cài đặt 1 lệnh (`installer.mjs`)</h3>
+        <p style="color: var(--text-dim);">
+          Bạn không cần copy file thủ công! Chỉ cần mở Terminal và gõ 1 dòng lệnh, công cụ sẽ tự động copy đúng component React hoặc script HTML vào dự án của bạn:
+        </p>
+
+        <div style="background: #060911; border: 1px solid var(--border); border-radius: 12px; padding: 18px; margin: 16px 0;">
+          <p style="margin: 0 0 10px 0; color: #94a3b8; font-size: 0.85rem;">Cài đặt nhân vật 3D vào dự án:</p>
+          <div class="cli-box" style="margin: 0 0 16px 0;">
+            <span>node E:\25.Mykey\tools\installer.mjs character &lt;đường_dẫn_project&gt;</span>
+          </div>
+
+          <p style="margin: 0 0 10px 0; color: #94a3b8; font-size: 0.85rem;">Cài đặt sóng nước tương tác:</p>
+          <div class="cli-box" style="margin: 0 0 16px 0;">
+            <span>node E:\25.Mykey\tools\installer.mjs ripple &lt;đường_dẫn_project&gt;</span>
+          </div>
+
+          <p style="margin: 0 0 10px 0; color: #94a3b8; font-size: 0.85rem;">Cài đặt 12 kỹ năng AI Coding (Skills cho Cursor/Claude):</p>
+          <div class="cli-box" style="margin: 0 0 16px 0;">
+            <span>node E:\25.Mykey\tools\installer.mjs skills &lt;đường_dẫn_project&gt;</span>
+          </div>
+
+          <p style="margin: 0 0 10px 0; color: #94a3b8; font-size: 0.85rem;">Cài đặt tất cả tính năng cùng lúc:</p>
+          <div class="cli-box" style="margin: 0;">
+            <span>node E:\25.Mykey\tools\installer.mjs all &lt;đường_dẫn_project&gt;</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SCRIPT LOGIC CHO DASHBOARD -->
+  <script type="module">
+    import { WaterRippleSim } from './modules/water-ripple.js';
+    import { AudioManager } from './modules/audio-manager.js';
+    import { WalkingCharacter } from './modules/walking-character.js';
+
+    // 1. Tab Switching
+    const tabBtns = document.querySelectorAll('.tab-btn');
+    const panels = document.querySelectorAll('.panel');
+
+    tabBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
+        if (!btn.dataset.tab) return;
+        tabBtns.forEach(b => b.classList.remove('active'));
+        panels.forEach(p => p.classList.remove('active'));
+
+        btn.classList.add('active');
+        document.getElementById(`tab-${btn.dataset.tab}`).classList.add('active');
+      });
+    });
+
+    // 2. Interactive Water Ripple Sandbox
+    const rCanvas = document.getElementById('ripple-canvas');
+    const rCtx = rCanvas.getContext('2d');
+    let rW = (rCanvas.width = rCanvas.parentElement.clientWidth);
+    let rH = (rCanvas.height = 320);
+    const rSim = new WaterRippleSim(rW, rH, 5);
+
+    rCanvas.addEventListener('pointerdown', (e) => {
+      const rect = rCanvas.getBoundingClientRect();
+      rSim.disturb(e.clientX - rect.left, e.clientY - rect.top, 24, -9);
+    });
+
+    let lastX = 0, lastY = 0;
+    rCanvas.addEventListener('pointermove', (e) => {
+      const rect = rCanvas.getBoundingClientRect();
+      const x = e.clientX - rect.left, y = e.clientY - rect.top;
+      if (Math.hypot(x - lastX, y - lastY) > 16) {
+        rSim.disturb(x, y, 16, -3);
+        lastX = x; lastY = y;
+      }
+    });
+
+    function loopRipple() {
+      requestAnimationFrame(loopRipple);
+      rSim.step();
+      rCtx.clearRect(0, 0, rW, rH);
+
+      const { cols, rows, cur } = rSim;
+      for (let y = 1; y < rows - 1; y += 2) {
+        for (let x = 1; x < cols - 1; x += 2) {
+          const h = cur[y * cols + x];
+          if (Math.abs(h) > 0.3) {
+            const alpha = Math.min(0.85, Math.abs(h) * 0.15);
+            rCtx.fillStyle = `rgba(56, 189, 248, ${alpha})`;
+            rCtx.fillRect(x * 5, y * 5, 10, 10);
+          }
+        }
+      }
+    }
+    loopRipple();
+
+    // 3. Audio Manager
+    const audio = new AudioManager();
+    audio.load('pop', '../duck-duck-test-main/audio/pop.mp3');
+    audio.load('touch', '../duck-duck-test-main/audio/touch.mp3');
+    audio.load('quack', '../duck-duck-test-main/audio/quack.mp3');
+    audio.load('bg', '../duck-duck-test-main/audio/bg.mp3');
+
+    document.addEventListener('pointerdown', () => audio.unlock(), { once: true });
+
+    document.getElementById('snd-pop').addEventListener('click', () => audio.play('pop', { volume: 0.7, pitchVariance: 0.12 }));
+    document.getElementById('snd-touch').addEventListener('click', () => audio.play('touch', { volume: 0.8, pitchVariance: 0.1 }));
+    document.getElementById('snd-quack').addEventListener('click', () => audio.play('quack', { volume: 0.8, pitchVariance: 0.08 }));
+
+    let isPlaying = false;
+    document.getElementById('snd-music').addEventListener('click', () => {
+      if (!isPlaying) {
+        audio.playMusic('bg', { volume: 0.4, fadeInSeconds: 1.5 });
+        document.getElementById('music-status').textContent = 'Đang phát (bấm để dừng)';
+        isPlaying = true;
+      } else {
+        audio.stopMusic({ fadeOutSeconds: 1.0 });
+        document.getElementById('music-status').textContent = 'Đã dừng (bấm để phát)';
+        isPlaying = false;
+      }
+    });
+
+    // 4. Mascot Walking at the bottom of the dashboard
+    new WalkingCharacter({
+      modelUrl: './models/chibi_bald_business_man_walk.glb',
+      scale: 125,
+      speed: 85,
+      floorOffset: 15,
+      gravity: 1800,
+      bounce: 0.35,
+      onLand: () => audio.play('touch', { volume: 0.3 }),
+    });
+  </script>
+
+</body>
+</html>

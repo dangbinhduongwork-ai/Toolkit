@@ -1,0 +1,17 @@
+{
+  "name": "vibe-3d-pipeline",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Tool nén và tối ưu hóa mô hình 3D (.glb/.gltf) phục vụ website hiệu năng cao",
+  "scripts": {
+    "optimize": "node optimize-glb.mjs"
+  },
+  "dependencies": {
+    "@gltf-transform/core": "^4.5.1",
+    "@gltf-transform/extensions": "^4.5.1",
+    "@gltf-transform/functions": "^4.5.1",
+    "meshoptimizer": "^1.3.0",
+    "sharp": "^0.33.5"
+  }
+}

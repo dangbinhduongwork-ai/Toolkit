@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Demo Nhân Vật 3D Đi Lại Dưới Chân Màn Hình</title>
+  <link rel="stylesheet" href="modules/ui-shell.css">
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      color: #f8fafc;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+
+    .demo-content {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 40px 20px 140px 20px;
+      line-height: 1.6;
+    }
+
+    .card {
+      background: rgba(30, 41, 59, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      backdrop-filter: blur(12px);
+    }
+
+    h1 {
+      font-size: 2.2rem;
+      margin-top: 0;
+      background: linear-gradient(to right, #38bdf8, #818cf8);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .control-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-top: 16px;
+    }
+
+    label {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      font-size: 0.9rem;
+      color: #cbd5e1;
+    }
+
+    input[type="range"] {
+      accent-color: #38bdf8;
+    }
+
+    .file-drop {
+      border: 2px dashed rgba(56, 189, 248, 0.4);
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+      background: rgba(56, 189, 248, 0.05);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .file-drop:hover {
+      border-color: #38bdf8;
+      background: rgba(56, 189, 248, 0.1);
+    }
+
+    code {
+      background: rgba(0, 0, 0, 0.3);
+      padding: 2px 6px;
+      border-radius: 4px;
+      font-family: monospace;
+      color: #38bdf8;
+    }
+
+    pre {
+      background: #090d16;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 8px;
+      padding: 16px;
+      overflow-x: auto;
+      font-size: 0.88rem;
+    }
+  </style>
+
+  <!-- Import map cho Three.js r186 -->
+  <script type="importmap">
+  {
+    "imports": {
+      "three": "https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js",
+      "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.0/examples/jsm/"
+    }
+  }
+  </script>
+</head>
+<body>
+
+  <div class="demo-content">
+    <h1>🚶 Demo Nhân Vật Đi Dưới Đáy Màn Hình</h1>
+    <p>Trang web mẫu này minh họa nhân vật 3D đi lại tự do dưới chân website của bạn. Bạn có thể <b>dùng chuột hoặc ngón tay kéo nhân vật lên cao rồi thả ra</b> để xem trọng lực rơi tự do!</p>
+
+    <div class="card">
+      <h3>📂 Thử trực tiếp với file GLB của bạn</h3>
+      <div class="file-drop" onclick="document.getElementById('glb-picker').click()">
+        <span>📁 Nhấp vào đây để chọn file <code>.glb</code> trên máy của bạn</span>
+        <input type="file" id="glb-picker" accept=".glb" style="display: none;">
+      </div>
+
+      <div class="control-grid">
+        <label>
+          Kích thước (Scale): <span id="val-scale">120px</span>
+          <input type="range" id="input-scale" min="60" max="300" value="120">
+        </label>
+        <label>
+          Tốc độ đi (Speed): <span id="val-speed">90px/s</span>
+          <input type="range" id="input-speed" min="20" max="300" value="90">
+        </label>
+        <label>
+          Trọng lực rơi (Gravity): <span id="val-gravity">1800</span>
+          <input type="range" id="input-gravity" min="500" max="4000" value="1800">
+        </label>
+        <label>
+          Độ nảy khi chạm đất (Bounce): <span id="val-bounce">0.35</span>
+          <input type="range" id="input-bounce" min="0" max="0.8" step="0.05" value="0.35">
+        </label>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>📋 Cách nhúng vào Website của bạn (Chỉ 3 dòng)</h3>
+      <pre><code>&lt;!-- 1. Thêm importmap trong thẻ &lt;head&gt; --&gt;
+&lt;script type="importmap"&gt;
+{
+  "imports": {
+    "three": "https://cdn.jsdelivr.net/npm/three@0.186.0/build/three.module.js",
+    "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.186.0/examples/jsm/"
+  }
+}
+&lt;/script&gt;
+
+&lt;!-- 2. Gọi module WalkingCharacter --&gt;
+&lt;script type="module"&gt;
+  import { WalkingCharacter } from './modules/walking-character.js';
+
+  new WalkingCharacter({
+    modelUrl: './models/your-character.glb', // Đường dẫn file .glb của bạn
+    scale: 120,    // Chiều cao nhân vật (px)
+    speed: 90,     // Tốc độ đi bộ
+    floorOffset: 15 // Cách mép đáy màn hình (px)
+  });
+&lt;/script&gt;</code></pre>
+    </div>
+  </div>
+
+  <script type="module">
+    import { WalkingCharacter } from './modules/walking-character.js';
+    import { AudioManager } from './modules/audio-manager.js';
+
+    // Tạo âm thanh vi tương tác
+    const audio = new AudioManager();
+    audio.load('landing', 'https://cdn.jsdelivr.net/gh/mrdoob/three.js@r186/examples/sounds/358232_j_s_the_artist__spring.ogg');
+    window.addEventListener('pointerdown', () => audio.unlock(), { once: true });
+
+    // Khởi tạo nhân vật (mặc định nạp file nhân vật chibi_bald_business_man_walk.glb)
+    const character = new WalkingCharacter({
+      modelUrl: './models/chibi_bald_business_man_walk.glb',
+      scale: 130,
+      speed: 90,
+      floorOffset: 15,
+      gravity: 1800,
+      bounce: 0.35,
+      onLand: () => {
+        audio.play('landing', { volume: 0.2, pitchVariance: 0.1 });
+      }
+    });
+
+    // File Picker để người dùng chọn trực tiếp file .glb của họ
+    document.getElementById('glb-picker').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (file) {
+        const objectUrl = URL.createObjectURL(file);
+        character.setModel(objectUrl);
+      }
+    });
+
+    // Sliders điều chỉnh thời gian thực
+    const bindSlider = (id, prop, unit = '') => {
+      const el = document.getElementById(`input-${id}`);
+      const val = document.getElementById(`val-${id}`);
+      el.addEventListener('input', () => {
+        val.textContent = el.value + unit;
+        character.opts[prop] = parseFloat(el.value);
+        if (prop === 'scale' && character.modelRoot) {
+          // Cập nhật lại scale
+          character.opts.scale = parseFloat(el.value);
+          character.setModel(character.opts.modelUrl);
+        }
+      });
+    };
+
+    bindSlider('scale', 'scale', 'px');
+    bindSlider('speed', 'speed', 'px/s');
+    bindSlider('gravity', 'gravity', '');
+    bindSlider('bounce', 'bounce', '');
+  </script>
+
+</body>
+</html>
